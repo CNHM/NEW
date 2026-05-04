@@ -257,38 +257,36 @@ ContentContainer.BackgroundTransparency=1
 ContentContainer.Position=UDim2.new(0,170,0,60)
 ContentContainer.Size=UDim2.new(1,-180,1,-100)
 ContentContainer.BorderSizePixel=0
-local Minimized=false
 MinimizeButton.MouseButton1Click:Connect(function()
 Minimized=not Minimized
 if Minimized then
-CreateTween(Sidebar,{BackgroundTransparency=1},0.2)
-CreateTween(ContentContainer,{Position=UDim2.new(0,170,0.5,0)},0.25)
-task.wait(0.15)
-CreateTween(MainFrame,{Size=UDim2.new(0,650,0,50)},0.3)
-task.wait(0.3)
+local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
+local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
 Sidebar.Visible=false
 ContentContainer.Visible=false
 BottomBar.Visible=false
+CreateTween(MainFrame,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY)},0.35)
 else
-MainFrame.Size=UDim2.new(0,650,0,50)
+local screenSizeX=workspace.CurrentCamera.ViewportSize.X
+local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
+local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local tween=TweenService:Create(MainFrame,tweenInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
+tween:Play()
+tween.Completed:Connect(function()
 Sidebar.Visible=true
 ContentContainer.Visible=true
 BottomBar.Visible=true
-ContentContainer.Position=UDim2.new(0,170,0.5,0)
-Sidebar.BackgroundTransparency=1
-CreateTween(MainFrame,{Size=UDim2.new(0,650,0,450)},0.3)
-task.wait(0.25)
-CreateTween(Sidebar,{BackgroundTransparency=0.6},0.2)
-CreateTween(ContentContainer,{Position=UDim2.new(0,170,0,60)},0.25)
+end)
 end
 end)
+
 CloseButton.MouseButton1Click:Connect(function()
-CreateTween(Topbar,{BackgroundTransparency=1},0.2)
-CreateTween(BottomBar,{BackgroundTransparency=1},0.2)
-CreateTween(Sidebar,{BackgroundTransparency=1},0.2)
-CreateTween(ContentContainer,{Position=UDim2.new(0.5,0,0.5,0)},0.25)
-CreateTween(MainFrame,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1},0.35)
-task.delay(0.35,function()
+local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
+local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
+local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
+local tween=TweenService:Create(MainFrame,tweenInfo,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY),BackgroundTransparency=1})
+tween:Play()
+tween.Completed:Connect(function()
 ScreenGui:Destroy()
 end)
 end)
