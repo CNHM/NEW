@@ -446,6 +446,7 @@ MiniBar.Visible=false
 Minimized=false 
 Topbar.Visible=true
 MainFrame.Visible=true
+MiniControlFrame.Visible=false
 local screenSizeX=workspace.CurrentCamera.ViewportSize.X
 local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
 local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
