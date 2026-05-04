@@ -289,32 +289,6 @@ MiniBarLabel.TextColor3=Library.Theme.TextColor
 MiniBarLabel.TextSize=14
 MiniBarLabel.TextXAlignment=Enum.TextXAlignment.Left
 MiniBarLabel.ZIndex=11
-local MiniMaxBtn=Instance.new("TextButton")
-MiniMaxBtn.Name="MiniMaxBtn"
-MiniMaxBtn.Parent=MiniBar
-MiniMaxBtn.BackgroundColor3=Color3.fromRGB(255,204,0)
-MiniMaxBtn.BackgroundTransparency=0.2
-MiniMaxBtn.Position=UDim2.new(1,-60,0.5,-7)
-MiniMaxBtn.Size=UDim2.new(0,14,0,14)
-MiniMaxBtn.Text=""
-MiniMaxBtn.AutoButtonColor=false
-MiniMaxBtn.ZIndex=15
-local MiniMaxCorner=Instance.new("UICorner")
-MiniMaxCorner.CornerRadius=UDim.new(1,0)
-MiniMaxCorner.Parent=MiniMaxBtn
-local MiniCloseBtn=Instance.new("TextButton")
-MiniCloseBtn.Name="MiniCloseBtn"
-MiniCloseBtn.Parent=MiniBar
-MiniCloseBtn.BackgroundColor3=Color3.fromRGB(255,59,48)
-MiniCloseBtn.BackgroundTransparency=0.2
-MiniCloseBtn.Position=UDim2.new(1,-35,0.5,-7)
-MiniCloseBtn.Size=UDim2.new(0,14,0,14)
-MiniCloseBtn.Text=""
-MiniCloseBtn.AutoButtonColor=false
-MiniCloseBtn.ZIndex=15
-local MiniCloseCorner=Instance.new("UICorner")
-MiniCloseCorner.CornerRadius=UDim.new(1,0)
-MiniCloseCorner.Parent=MiniCloseBtn
 MakeDraggable(MiniBar,MiniBar)
 local MiniControlFrame=Instance.new("Frame")
 MiniControlFrame.Name="MiniControlFrame"
@@ -363,25 +337,12 @@ if MiniBar.Visible then
 SyncControlFrame()
 end
 end)
-FloatCloseBtn.MouseButton1Click:Connect(function()
-if MiniBarConnection then
-MiniBarConnection:Disconnect()
-MiniBarConnection=nil
-end
-MiniBar.Visible=false
-MiniControlFrame.Visible=false
-local tweenInfo=TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
-local t=TweenService:Create(MiniBar,tweenInfo,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1})
-t:Play()
-t.Completed:Connect(function()
-ScreenGui:Destroy()
-end)
-end)
 FloatMaxBtn.MouseButton1Click:Connect(function()
 if MiniBarConnection then
 MiniBarConnection:Disconnect()
 MiniBarConnection=nil
 end
+Minimized=false
 MiniBar.Visible=false
 MiniControlFrame.Visible=false
 local screenSizeX=workspace.CurrentCamera.ViewportSize.X
