@@ -316,21 +316,88 @@ local MiniCloseCorner=Instance.new("UICorner")
 MiniCloseCorner.CornerRadius=UDim.new(1,0)
 MiniCloseCorner.Parent=MiniCloseBtn
 MakeDraggable(MiniBar,MiniBar)
+local MiniControlFrame=Instance.new("Frame")
+MiniControlFrame.Name="MiniControlFrame"
+MiniControlFrame.Parent=ScreenGui
+MiniControlFrame.BackgroundTransparency=1
+MiniControlFrame.Size=UDim2.new(0,50,0,40)
+MiniControlFrame.Position=UDim2.new(0.5,215,0.5,-20)
+MiniControlFrame.BorderSizePixel=0
+MiniControlFrame.Visible=false
+MiniControlFrame.ZIndex=20
+local FloatMaxBtn=Instance.new("TextButton")
+FloatMaxBtn.Name="FloatMaxBtn"
+FloatMaxBtn.Parent=MiniControlFrame
+FloatMaxBtn.BackgroundColor3=Color3.fromRGB(255,204,0)
+FloatMaxBtn.BackgroundTransparency=0.1
+FloatMaxBtn.Position=UDim2.new(0,0,0.5,-8)
+FloatMaxBtn.Size=UDim2.new(0,16,0,16)
+FloatMaxBtn.Text=""
+FloatMaxBtn.AutoButtonColor=true
+FloatMaxBtn.ZIndex=21
+local FloatMaxCorner=Instance.new("UICorner")
+FloatMaxCorner.CornerRadius=UDim.new(1,0)
+FloatMaxCorner.Parent=FloatMaxBtn
+local FloatCloseBtn=Instance.new("TextButton")
+FloatCloseBtn.Name="FloatCloseBtn"
+FloatCloseBtn.Parent=MiniControlFrame
+FloatCloseBtn.BackgroundColor3=Color3.fromRGB(255,59,48)
+FloatCloseBtn.BackgroundTransparency=0.1
+FloatCloseBtn.Position=UDim2.new(0,26,0.5,-8)
+FloatCloseBtn.Size=UDim2.new(0,16,0,16)
+FloatCloseBtn.Text=""
+FloatCloseBtn.AutoButtonColor=true
+FloatCloseBtn.ZIndex=21
+local FloatCloseBtnCorner=Instance.new("UICorner")
+FloatCloseBtnCorner.CornerRadius=UDim.new(1,0)
+FloatCloseBtnCorner.Parent=FloatCloseBtn
 local MiniBarConnection=nil
 local FpsCache=0
 local FpsTimer=0
 local LastFrameTime=tick()
-MiniCloseBtn.MouseButton1Click:Connect(function()
+local function SyncControlFrame()
+MiniControlFrame.Position=UDim2.new(0,MiniBar.AbsolutePosition.X+MiniBar.AbsoluteSize.X+8,0,MiniBar.AbsolutePosition.Y)
+end
+RunService.RenderStepped:Connect(function()
+if MiniBar.Visible then
+SyncControlFrame()
+end
+end)
+FloatCloseBtn.MouseButton1Click:Connect(function()
 if MiniBarConnection then
 MiniBarConnection:Disconnect()
 MiniBarConnection=nil
 end
 MiniBar.Visible=false
+MiniControlFrame.Visible=false
 local tweenInfo=TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
 local t=TweenService:Create(MiniBar,tweenInfo,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1})
 t:Play()
 t.Completed:Connect(function()
 ScreenGui:Destroy()
+end)
+end)
+FloatMaxBtn.MouseButton1Click:Connect(function()
+if MiniBarConnection then
+MiniBarConnection:Disconnect()
+MiniBarConnection=nil
+end
+MiniBar.Visible=false
+MiniControlFrame.Visible=false
+local screenSizeX=workspace.CurrentCamera.ViewportSize.X
+local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
+MainFrame.Visible=true
+MainFrame.Size=UDim2.new(0,0,0,0)
+MainFrame.Position=UDim2.new(0,MiniBar.AbsolutePosition.X+210,0,MiniBar.AbsolutePosition.Y+20)
+MainFrame.BackgroundTransparency=0.3
+Topbar.Visible=true
+local expandInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local expand=TweenService:Create(MainFrame,expandInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
+expand:Play()
+expand.Completed:Connect(function()
+Sidebar.Visible=true
+ContentContainer.Visible=true
+BottomBar.Visible=true
 end)
 end)
 local Minimized=false
@@ -344,6 +411,7 @@ ContentContainer.Visible=false
 BottomBar.Visible=false
 Topbar.Visible=false
 MiniBar.Visible=true
+MiniControlFrame.Visible=true
 local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
 local tween=TweenService:Create(MainFrame,tweenInfo,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY)})
 tween:Play()
