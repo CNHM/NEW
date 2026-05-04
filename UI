@@ -356,6 +356,7 @@ if MiniBar.Visible then
 SyncControlFrame()
 end
 end)
+local Minimized=false
 FloatMaxBtn.MouseButton1Click:Connect(function()
 if MiniBarConnection then
 MiniBarConnection:Disconnect()
@@ -380,7 +381,20 @@ ContentContainer.Visible=true
 BottomBar.Visible=true
 end)
 end)
-local Minimized=false
+FloatCloseBtn.MouseButton1Click:Connect(function()
+if MiniBarConnection then
+MiniBarConnection:Disconnect()
+MiniBarConnection=nil
+end
+MiniBar.Visible=false
+MiniControlFrame.Visible=false
+local tweenInfo=TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
+local t=TweenService:Create(MiniBar,tweenInfo,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1})
+t:Play()
+t.Completed:Connect(function()
+ScreenGui:Destroy()
+end)
+end)
 MinimizeButton.MouseButton1Click:Connect(function()
 Minimized=not Minimized
 if Minimized then
