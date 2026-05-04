@@ -261,21 +261,34 @@ local Minimized=false
 MinimizeButton.MouseButton1Click:Connect(function()
 Minimized=not Minimized
 if Minimized then
+CreateTween(Sidebar,{BackgroundTransparency=1},0.2)
+CreateTween(ContentContainer,{Position=UDim2.new(0,170,0.5,0)},0.25)
+task.wait(0.15)
 CreateTween(MainFrame,{Size=UDim2.new(0,650,0,50)},0.3)
+task.wait(0.3)
 Sidebar.Visible=false
 ContentContainer.Visible=false
 BottomBar.Visible=false
 else
-CreateTween(MainFrame,{Size=UDim2.new(0,650,0,450)},0.3)
-task.wait(0.3)
+MainFrame.Size=UDim2.new(0,650,0,50)
 Sidebar.Visible=true
 ContentContainer.Visible=true
 BottomBar.Visible=true
+ContentContainer.Position=UDim2.new(0,170,0.5,0)
+Sidebar.BackgroundTransparency=1
+CreateTween(MainFrame,{Size=UDim2.new(0,650,0,450)},0.3)
+task.wait(0.25)
+CreateTween(Sidebar,{BackgroundTransparency=0.6},0.2)
+CreateTween(ContentContainer,{Position=UDim2.new(0,170,0,60)},0.25)
 end
 end)
 CloseButton.MouseButton1Click:Connect(function()
-local t=CreateTween(MainFrame,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1},0.3)
-t.Completed:Connect(function()
+CreateTween(Topbar,{BackgroundTransparency=1},0.2)
+CreateTween(BottomBar,{BackgroundTransparency=1},0.2)
+CreateTween(Sidebar,{BackgroundTransparency=1},0.2)
+CreateTween(ContentContainer,{Position=UDim2.new(0.5,0,0.5,0)},0.25)
+CreateTween(MainFrame,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1},0.35)
+task.delay(0.35,function()
 ScreenGui:Destroy()
 end)
 end)
@@ -629,11 +642,13 @@ local KnobCorner=Instance.new("UICorner")
 KnobCorner.CornerRadius=UDim.new(1,0)
 KnobCorner.Parent=TrackKnob
 local Dragging=false
-local function UpdateSlider(input)
-local pos=math.clamp((input.Position.X-TrackBg.AbsolutePosition.X)/TrackBg.AbsoluteSize.X,0,1)
+local function UpdateSlider(inputX)
+local relX=inputX-TrackBg.AbsolutePosition.X
+local size=TrackBg.AbsoluteSize.X
+local pos=math.clamp(relX/size,0,1)
 local val=math.floor(Min+((Max-Min)*pos))
 ValueLabel.Text=tostring(val)
-CreateTween(TrackFill,{Size=UDim2.new(pos,0,1,0)},0.1)
+TrackFill.Size=UDim2.new(pos,0,1,0)
 if SliderValue~=val then
 SliderValue=val
 pcall(SldCallback,val)
@@ -642,7 +657,22 @@ end
 TrackBg.InputBegan:Connect(function(input)
 if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
 Dragging=true
-UpdateSlider(input)
+UpdateSlider(input.Position.X)
+end
+end)
+TrackBg.InputChanged:Connect(function(input)
+if Dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
+UpdateSlider(input.Position.X)
+end
+end)
+TrackBg.InputEnded:Connect(function(input)
+if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+Dragging=false
+end
+end)
+UserInputService.InputChanged:Connect(function(input)
+if Dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
+UpdateSlider(input.Position.X)
 end
 end)
 UserInputService.InputEnded:Connect(function(input)
