@@ -333,28 +333,15 @@ t.Completed:Connect(function()
 ScreenGui:Destroy()
 end)
 end)
-MiniMaxBtn.MouseButton1Click:Connect(function()
-if MiniBarConnection then
-MiniBarConnection:Disconnect()
-MiniBarConnection=nil
-end
-MiniBar.Visible=false
-Minimized=false
-Topbar.Visible=true
-local screenSizeX=workspace.CurrentCamera.ViewportSize.X
-local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
-MainFrame.Size=UDim2.new(0,0,0,0)
-MainFrame.Position=UDim2.new(0,MiniBar.AbsolutePosition.X+210,0,MiniBar.AbsolutePosition.Y+20)
-MainFrame.BackgroundTransparency=0.3
-local expandInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
-local expand=TweenService:Create(MainFrame,expandInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
-expand:Play()
-expand.Completed:Connect(function()
-Sidebar.Visible=true
-ContentContainer.Visible=true
-BottomBar.Visible=true
-end)
-end)
+local Minimized=false
+MinimizeButton.MouseButton1Click:Connect(function()
+Minimized=not Minimized
+if Minimized then
+local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
+local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
+Sidebar.Visible=false
+ContentContainer.Visible=false
+BottomBar.Visible=false
 Topbar.Visible=false
 MiniBar.Visible=true
 local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
@@ -795,17 +782,12 @@ end
 end)
 TrackBg.InputChanged:Connect(function(input)
 if Dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
-UpdateSlider(input.Position.X)
-end
-end)
-TrackBg.InputEnded:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-Dragging=false
+UpdateSlider(input)
 end
 end)
 UserInputService.InputChanged:Connect(function(input)
 if Dragging and (input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch) then
-UpdateSlider(input.Position.X)
+UpdateSlider(input)
 end
 end)
 UserInputService.InputEnded:Connect(function(input)
