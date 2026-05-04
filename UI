@@ -353,6 +353,9 @@ local screenSizeX=workspace.CurrentCamera.ViewportSize.X
 local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
 local t2=TweenService:Create(MainFrame,expandTween,{Size=UDim2.new(0,420,0,40),Position=UDim2.new(0,screenSizeX/2-210,0,screenSizeY/2-20)})
 t2:Play()
+t2.Completed:Connect(function()
+MainFrame.Visible=false
+end )
 end)
 MiniBarConnection=RunService.RenderStepped:Connect(function(dt)
 local ping=math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
@@ -378,7 +381,9 @@ MiniBarConnection:Disconnect()
 MiniBarConnection=nil
 end
 MiniBar.Visible=false
+Minimized=false 
 Topbar.Visible=true
+MainFrame.Visible=true
 local screenSizeX=workspace.CurrentCamera.ViewportSize.X
 local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
 local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
