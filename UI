@@ -257,6 +257,38 @@ ContentContainer.BackgroundTransparency=1
 ContentContainer.Position=UDim2.new(0,170,0,60)
 ContentContainer.Size=UDim2.new(1,-180,1,-100)
 ContentContainer.BorderSizePixel=0
+local MiniBar=Instance.new("Frame")
+MiniBar.Name="MiniBar"
+MiniBar.Parent=MainFrame
+MiniBar.BackgroundColor3=Library.Theme.MainColor
+MiniBar.BackgroundTransparency=0.3
+MiniBar.Size=UDim2.new(1,0,1,0)
+MiniBar.BorderSizePixel=0
+MiniBar.Visible=false
+MiniBar.ZIndex=10
+local MiniBarCorner=Instance.new("UICorner")
+MiniBarCorner.CornerRadius=Library.Theme.CornerRadius
+MiniBarCorner.Parent=MiniBar
+local MiniBarStroke=Instance.new("UIStroke")
+MiniBarStroke.Color=Library.Theme.StrokeColor
+MiniBarStroke.Transparency=Library.Theme.StrokeTransparency
+MiniBarStroke.Thickness=1.5
+MiniBarStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+MiniBarStroke.Parent=MiniBar
+local MiniBarLabel=Instance.new("TextLabel")
+MiniBarLabel.Name="MiniBarLabel"
+MiniBarLabel.Parent=MiniBar
+MiniBarLabel.BackgroundColor3=Color3.fromRGB(255,255,255)
+MiniBarLabel.BackgroundTransparency=1
+MiniBarLabel.Position=UDim2.new(0,15,0,0)
+MiniBarLabel.Size=UDim2.new(1,-30,1,0)
+MiniBarLabel.Font=Library.Theme.Font
+MiniBarLabel.Text=""
+MiniBarLabel.TextColor3=Library.Theme.TextColor
+MiniBarLabel.TextSize=14
+MiniBarLabel.TextXAlignment=Enum.TextXAlignment.Left
+MiniBarLabel.ZIndex=11
+local MiniBarConnection=nil
 MinimizeButton.MouseButton1Click:Connect(function()
 Minimized=not Minimized
 if Minimized then
@@ -265,21 +297,50 @@ local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
 Sidebar.Visible=false
 ContentContainer.Visible=false
 BottomBar.Visible=false
-CreateTween(MainFrame,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY)},0.35)
-else
-local screenSizeX=workspace.CurrentCamera.ViewportSize.X
-local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
-local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
-local tween=TweenService:Create(MainFrame,tweenInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
+Topbar.Visible=false
+MiniBar.Visible=true
+local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
+local tween=TweenService:Create(MainFrame,tweenInfo,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY)})
 tween:Play()
 tween.Completed:Connect(function()
+local expandTween=TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local screenSizeX=workspace.CurrentCamera.ViewportSize.X
+local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
+local t2=TweenService:Create(MainFrame,expandTween,{Size=UDim2.new(0,420,0,40),Position=UDim2.new(0,screenSizeX/2-210,0,screenSizeY/2-20)})
+t2:Play()
+end)
+MiniBarConnection=RunService.RenderStepped:Connect(function()
+local ping=math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+local fps=math.floor(1/RunService.RenderStepped:Wait())
+local displayName=LocalPlayer.DisplayName
+MiniBarLabel.Text=WindowOptions.Title.." | "..tostring(ping).."ms | "..tostring(fps).."fps | "..displayName
+end)
+else
+if MiniBarConnection then
+MiniBarConnection:Disconnect()
+MiniBarConnection=nil
+end
+MiniBar.Visible=false
+Topbar.Visible=true
+local screenSizeX=workspace.CurrentCamera.ViewportSize.X
+local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
+local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
+local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
+local shrinkInfo=TweenInfo.new(0.2,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
+local shrink=TweenService:Create(MainFrame,shrinkInfo,{Size=UDim2.new(0,0,0,0),Position=UDim2.new(0,centerX,0,centerY)})
+shrink:Play()
+shrink.Completed:Connect(function()
+local expandInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local expand=TweenService:Create(MainFrame,expandInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
+expand:Play()
+expand.Completed:Connect(function()
 Sidebar.Visible=true
 ContentContainer.Visible=true
 BottomBar.Visible=true
 end)
+end)
 end
 end)
-
 CloseButton.MouseButton1Click:Connect(function()
 local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
 local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
