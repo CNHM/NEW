@@ -701,13 +701,16 @@ local KnobCorner=Instance.new("UICorner")
 KnobCorner.CornerRadius=UDim.new(1,0)
 KnobCorner.Parent=TrackKnob
 local Dragging=false
-local function UpdateSlider(inputX)
-local relX=inputX-TrackBg.AbsolutePosition.X
-local size=TrackBg.AbsoluteSize.X
-local pos=math.clamp(relX/size,0,1)
+local function UpdateSlider(input)
+local trackPosX=TrackBg.AbsolutePosition.X
+local trackSizeX=TrackBg.AbsoluteSize.X
+if typeof(trackPosX)~="number" or trackSizeX==0 then return end
+local inputX=input.Position.X
+if typeof(inputX)~="number" then return end
+local pos=math.clamp((inputX-trackPosX)/trackSizeX,0,1)
 local val=math.floor(Min+((Max-Min)*pos))
 ValueLabel.Text=tostring(val)
-TrackFill.Size=UDim2.new(pos,0,1,0)
+CreateTween(TrackFill,{Size=UDim2.new(pos,0,1,0)},0.1)
 if SliderValue~=val then
 SliderValue=val
 pcall(SldCallback,val)
@@ -716,7 +719,8 @@ end
 TrackBg.InputBegan:Connect(function(input)
 if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
 Dragging=true
-UpdateSlider(input.Position.X)
+RunService.RenderStepped:Wait()
+UpdateSlider(input)
 end
 end)
 TrackBg.InputChanged:Connect(function(input)
