@@ -259,15 +259,16 @@ ContentContainer.Size=UDim2.new(1,-180,1,-100)
 ContentContainer.BorderSizePixel=0
 local MiniBar=Instance.new("Frame")
 MiniBar.Name="MiniBar"
-MiniBar.Parent=MainFrame
+MiniBar.Parent=ScreenGui
 MiniBar.BackgroundColor3=Library.Theme.MainColor
 MiniBar.BackgroundTransparency=0.3
-MiniBar.Size=UDim2.new(1,0,1,0)
+MiniBar.Size=UDim2.new(0,420,0,40)
+MiniBar.Position=UDim2.new(0.5,-210,0.5,-20)
 MiniBar.BorderSizePixel=0
 MiniBar.Visible=false
 MiniBar.ZIndex=10
 local MiniBarCorner=Instance.new("UICorner")
-MiniBarCorner.CornerRadius=Library.Theme.CornerRadius
+MiniBarCorner.CornerRadius=UDim.new(1,0)
 MiniBarCorner.Parent=MiniBar
 local MiniBarStroke=Instance.new("UIStroke")
 MiniBarStroke.Color=Library.Theme.StrokeColor
@@ -281,22 +282,79 @@ MiniBarLabel.Parent=MiniBar
 MiniBarLabel.BackgroundColor3=Color3.fromRGB(255,255,255)
 MiniBarLabel.BackgroundTransparency=1
 MiniBarLabel.Position=UDim2.new(0,15,0,0)
-MiniBarLabel.Size=UDim2.new(1,-30,1,0)
+MiniBarLabel.Size=UDim2.new(1,-90,1,0)
 MiniBarLabel.Font=Library.Theme.Font
 MiniBarLabel.Text=""
 MiniBarLabel.TextColor3=Library.Theme.TextColor
 MiniBarLabel.TextSize=14
 MiniBarLabel.TextXAlignment=Enum.TextXAlignment.Left
 MiniBarLabel.ZIndex=11
+local MiniMaxBtn=Instance.new("TextButton")
+MiniMaxBtn.Name="MiniMaxBtn"
+MiniMaxBtn.Parent=MiniBar
+MiniMaxBtn.BackgroundColor3=Color3.fromRGB(255,204,0)
+MiniMaxBtn.BackgroundTransparency=0.2
+MiniMaxBtn.Position=UDim2.new(1,-60,0.5,-7)
+MiniMaxBtn.Size=UDim2.new(0,14,0,14)
+MiniMaxBtn.Text=""
+MiniMaxBtn.AutoButtonColor=false
+MiniMaxBtn.ZIndex=12
+local MiniMaxCorner=Instance.new("UICorner")
+MiniMaxCorner.CornerRadius=UDim.new(1,0)
+MiniMaxCorner.Parent=MiniMaxBtn
+local MiniCloseBtn=Instance.new("TextButton")
+MiniCloseBtn.Name="MiniCloseBtn"
+MiniCloseBtn.Parent=MiniBar
+MiniCloseBtn.BackgroundColor3=Color3.fromRGB(255,59,48)
+MiniCloseBtn.BackgroundTransparency=0.2
+MiniCloseBtn.Position=UDim2.new(1,-35,0.5,-7)
+MiniCloseBtn.Size=UDim2.new(0,14,0,14)
+MiniCloseBtn.Text=""
+MiniCloseBtn.AutoButtonColor=false
+MiniCloseBtn.ZIndex=12
+local MiniCloseCorner=Instance.new("UICorner")
+MiniCloseCorner.CornerRadius=UDim.new(1,0)
+MiniCloseCorner.Parent=MiniCloseBtn
+MakeDraggable(MiniBar,MiniBar)
 local MiniBarConnection=nil
-MinimizeButton.MouseButton1Click:Connect(function()
-Minimized=not Minimized
-if Minimized then
-local centerX=MainFrame.AbsolutePosition.X+MainFrame.AbsoluteSize.X/2
-local centerY=MainFrame.AbsolutePosition.Y+MainFrame.AbsoluteSize.Y/2
-Sidebar.Visible=false
-ContentContainer.Visible=false
-BottomBar.Visible=false
+local FpsCache=0
+local FpsTimer=0
+local LastFrameTime=tick()
+MiniCloseBtn.MouseButton1Click:Connect(function()
+if MiniBarConnection then
+MiniBarConnection:Disconnect()
+MiniBarConnection=nil
+end
+MiniBar.Visible=false
+local tweenInfo=TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
+local t=TweenService:Create(MiniBar,tweenInfo,{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1})
+t:Play()
+t.Completed:Connect(function()
+ScreenGui:Destroy()
+end)
+end)
+MiniMaxBtn.MouseButton1Click:Connect(function()
+if MiniBarConnection then
+MiniBarConnection:Disconnect()
+MiniBarConnection=nil
+end
+MiniBar.Visible=false
+Minimized=false
+Topbar.Visible=true
+local screenSizeX=workspace.CurrentCamera.ViewportSize.X
+local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
+MainFrame.Size=UDim2.new(0,0,0,0)
+MainFrame.Position=UDim2.new(0,MiniBar.AbsolutePosition.X+210,0,MiniBar.AbsolutePosition.Y+20)
+MainFrame.BackgroundTransparency=0.3
+local expandInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local expand=TweenService:Create(MainFrame,expandInfo,{Size=UDim2.new(0,650,0,450),Position=UDim2.new(0,screenSizeX/2-325,0,screenSizeY/2-225)})
+expand:Play()
+expand.Completed:Connect(function()
+Sidebar.Visible=true
+ContentContainer.Visible=true
+BottomBar.Visible=true
+end)
+end)
 Topbar.Visible=false
 MiniBar.Visible=true
 local tweenInfo=TweenInfo.new(0.35,Enum.EasingStyle.Quart,Enum.EasingDirection.In)
@@ -309,11 +367,23 @@ local screenSizeY=workspace.CurrentCamera.ViewportSize.Y
 local t2=TweenService:Create(MainFrame,expandTween,{Size=UDim2.new(0,420,0,40),Position=UDim2.new(0,screenSizeX/2-210,0,screenSizeY/2-20)})
 t2:Play()
 end)
-MiniBarConnection=RunService.RenderStepped:Connect(function()
+MiniBarConnection=RunService.RenderStepped:Connect(function(dt)
 local ping=math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
-local fps=math.floor(1/RunService.RenderStepped:Wait())
 local displayName=LocalPlayer.DisplayName
-MiniBarLabel.Text=WindowOptions.Title.." | "..tostring(ping).."ms | "..tostring(fps).."fps | "..displayName
+FpsTimer=FpsTimer+dt
+local now=tick()
+local frameDelta=now-LastFrameTime
+LastFrameTime=now
+if frameDelta>0 then
+FpsCache=math.floor(0.9*FpsCache+0.1*(1/frameDelta))
+end
+if FpsTimer>=1 then
+FpsTimer=0
+MiniBarLabel.Text=WindowOptions.Title.." | "..tostring(ping).."ms | "..tostring(FpsCache).."fps | "..displayName
+end
+if MiniBarLabel.Text=="" then
+MiniBarLabel.Text=WindowOptions.Title.." | --ms | --fps | "..displayName
+end
 end)
 else
 if MiniBarConnection then
